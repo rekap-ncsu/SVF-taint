@@ -4,17 +4,25 @@
 sudo apt-get install zlib1g-dev unzip cmake gcc g++ libtinfo5 nodejs wget libncurses5-dev
 ```
 
-## 1. Install SVF and its dependence (LLVM pre-built binary) via npm
+## 1. Install SVF from source
+follow the [guide](https://github.com/svf-tools/SVF/wiki/Setup-Guide#getting-started) for using cmake:
 ```
-npm i --silent svf-lib --prefix ${HOME}
+sudo apt install cmake gcc g++ libtinfo5 libz-dev libzstd-dev zip wget libncurses5-dev ##(If running on Ubuntu 20.04)
+                                                                                       ##(had to install libncurses6-dev, I think. Follow the prompts apt gives with its version errors)
+
+git clone https://github.com/SVF-tools/SVF.git
+cd SVF
+source ./build.sh
 ```
 
 ## 2. Clone repository
 ```
-git clone https://github.com/SVF-tools/SVF-example.git
+git clone git@github.com:rekap-ncsu/SVF-taint.git
 ```
 
 ## 3. Setup SVF environment and build your project 
+modify [`env.sh`](./env.sh) to point `SVF_DIR` to the SVF root folder
+
 ```
 source ./env.sh
 ```
