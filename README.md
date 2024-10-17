@@ -30,6 +30,8 @@ cmake the project (`cmake -DCMAKE_BUILD_TYPE=Debug .` for debug build)
 ```
 cmake . && make
 ```
+
+The executable will be saved in `$repo/src/`
 ## 4. Analyze a bc file using svf-ex executable
 ```
 clang -S -c -g -fno-discard-value-names -emit-llvm example.c -o example.ll
