@@ -1,10 +1,5 @@
-# first ignore everything, then don't ignore anything that has an extension or is a directory
-*
-!*.*
-!*/
-
-# gitignore as usual
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+svf-taint
