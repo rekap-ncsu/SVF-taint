@@ -171,7 +171,7 @@ int main(int argc, char ** argv)
     /// aliasQuery(ander,value1,value2);
 
     /// Print points-to information
-    /// printPts(ander, value1);
+    // / printPts(ander, value1);
 
     /// Call Graph
     CallGraph* callgraph = ander->getCallGraph();
