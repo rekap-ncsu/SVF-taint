@@ -182,22 +182,77 @@ int main(int argc, char ** argv)
     /// Value-Flow Graph (VFG)
     VFG* vfg = new VFG(callgraph);
 
+    for(auto itr = icfg->begin(), eit = icfg->end(); itr != eit; ++itr)
+    {
+        SVF::ICFGNode* this_node = itr->second;
+
+        // cerr << "wah" << endl;
+        if(this_node->getFun() == 0)
+        {
+            cerr << "skipping" << endl;
+            continue;
+        }
+        string fname = this_node->getFun()->getName();
+        // SVF::ICFGNode::SVFStmtList stmts = this_node->getSVFStmts();
+
+        //comparing getNodeKind and getType. they are different
+        // cerr << this_node->getNodeKind() << "/" << this_node->getType() << endl;
+
+        // cerr << (SVF::SVFBaseNode::GNodeK::FunCallBlock == this_node->getNodeKind() ? "true" : "false") << endl;
+        if(CallICFGNode* call_node = dyn_cast<CallICFGNode>(this_node))
+        {
+            if (call_node->getCalledFunction()->toString().find("system") != -1)
+            {
+                cerr << "found sink: " << call_node->getCalledFunction()->toString() << endl;
+            }
+        }
+
+        if(CallICFGNode* call_node = dyn_cast<CallICFGNode>(this_node))
+        {
+            if (call_node->getCalledFunction()->toString().find("taint_var") != -1)
+            {
+                cerr << "found source: " << call_node->getCalledFunction()->toString() << endl;
+            }
+        }
+
+        // cerr << this_node->toString() << endl;
+        // cerr << this_node->getType() << endl;
+        // cerr << this_node->getType()->toString() << endl;
+        
+        // cerr << fname << endl;
+        // for(auto stmt: stmts)
+        // {
+        //     cerr << stmt << endl;
+        // }
+        // cerr << endl;
+
+        // if(fname.find("taint_var") != -1)
+        // {
+        //     cerr << "source: " << fname << endl;
+        // }
+        // if(fname.find("system") != -1)
+        // {
+        //     cerr << "sink: " << fname << endl;
+        // }
+    }
+
     /// Sparse value-flow graph (SVFG)
     SVFGBuilder svfBuilder;
     SVFG* svfg = svfBuilder.buildFullSVFG(ander);
 
     /// Collect uses of an LLVM Value
-    /// traverseOnVFG(svfg, value);
+    // traverseOnVFG(svfg, value);
 
     /// Collect all successor nodes on ICFG
-    /// traverseOnICFG(icfg, value);
+    // traverseOnICFG(icfg, value);
+    // traverseOnICFG(icfg);
 
     // clean up memory
     delete vfg;
     AndersenWaveDiff::releaseAndersenWaveDiff();
     SVFIR::releaseSVFIR();
 
-    LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf.bc");
+    // LLVMModuleSet::getLLVMModuleSet()->dumpModulesToFile(".svf.bc");
     SVF::LLVMModuleSet::releaseLLVMModuleSet();
 
     llvm::llvm_shutdown();
