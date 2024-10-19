@@ -1,5 +1,15 @@
+# ignore CMake artifacts
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+
+# ignore executable
 svf-taint
+
+# ignore vscode configuration
+.vscode
+
+# ignore svf graph output files
+test-inputs/**/*.dot
+test-inputs/**/*.pdf
