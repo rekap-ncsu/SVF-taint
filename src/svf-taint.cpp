@@ -32,6 +32,8 @@
 #include "SVF-LLVM/SVFIRBuilder.h"
 #include "Util/Options.h"
 
+#include "SABER/SrcSnkDDA.h"
+
 using namespace llvm;
 using namespace std;
 using namespace SVF;
@@ -245,7 +247,6 @@ int main(int argc, char ** argv)
 
     /// Collect all successor nodes on ICFG
     // traverseOnICFG(icfg, value);
-    // traverseOnICFG(icfg);
 
     // clean up memory
     delete vfg;
@@ -259,3 +260,96 @@ int main(int argc, char ** argv)
     return 0;
 }
 
+/// @brief dummy extension of SrcSnkDDA
+class TaintChecker: public SrcSnkDDA
+{
+public:
+    TaintChecker()
+    {
+    }
+    virtual ~TaintChecker()
+    {
+    }
+
+    virtual bool runOnModule(SVFIR* pag)
+    {
+        analyze(pag->getModule());
+        return false;
+    }
+
+    virtual void initSrcs() override
+    {
+        PAG* pag = this->getPAG();
+        ICFG* icfg = pag->getICFG();
+
+        for(ICFG::const_iterator itr = icfg->begin(), eit = icfg->end(); itr != eit; ++itr)
+        {
+            const SVF::ICFGNode* this_node = itr->second;
+
+            if(const CallICFGNode* call_node = dyn_cast<CallICFGNode>(this_node))
+            {
+                if (isSourceLikeFun(call_node->getCalledFunction()))
+                {
+                    cerr << "found source: " << call_node->getCalledFunction()->toString() << endl;
+
+                    const RetICFGNode* retBlockNode = call_node->getRetICFGNode();
+                    const PAGNode* pagNode = pag->getCallSiteRet(retBlockNode);
+                    const SVFGNode* node = getSVFG()->getDefSVFGNode(pagNode);
+
+                    this->addToSources(node);
+                }
+            }
+        }
+    }
+
+    virtual void initSnks() override
+    {
+        PAG* pag = this->getPAG();
+        ICFG* icfg = pag->getICFG();
+
+        for(ICFG::const_iterator itr = icfg->begin(), eit = icfg->end(); itr != eit; ++itr)
+        {
+            const SVF::ICFGNode* this_node = itr->second;
+
+            if(const CallICFGNode* call_node = dyn_cast<CallICFGNode>(this_node))
+            {
+                if (isSinkLikeFun(call_node->getCalledFunction()))
+                {
+                    cerr << "found sink: " << call_node->getCalledFunction()->toString() << endl;
+                    
+                    //get first argument
+                    const SVFVar* sink_arg = call_node->getArgument(0);
+                    //turn that arg into an SVFGNode
+                    pag-> sink_arg
+
+
+                    this->addToSinks();
+                }
+            }
+        }
+    }
+
+    /// @brief is it a call to `taint_var`?
+    /// @param fun the function being scrutinized
+    /// @return if it is a call to `taint_var`
+    virtual inline bool isSourceLikeFun(const SVFFunction* fun) override
+    {
+        if (fun->toString().find("taint_var") != -1)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /// @brief is it a call to `system`?
+    /// @param fun the function being scrutinized
+    /// @return if it is a call to `system`
+    virtual inline bool isSinkLikeFun(const SVFFunction* fun) override
+    {
+        if (fun->toString().find("system") != -1)
+        {
+            return true;
+        }
+        return false;    
+    }
+};
