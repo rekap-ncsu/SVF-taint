@@ -294,7 +294,9 @@ public:
 
                     const RetICFGNode* retBlockNode = call_node->getRetICFGNode();
                     const PAGNode* pagNode = pag->getCallSiteRet(retBlockNode);
-                    const SVFGNode* node = getSVFG()->getDefSVFGNode(pagNode);
+                    const SVFGNode* node = getSVFG()->getDefSVFGNode(pagNode); //not certain that this works
+
+                    cerr << "source at: " << node->getSourceLoc() << endl;
 
                     this->addToSources(node);
                 }
@@ -320,10 +322,11 @@ public:
                     //get first argument
                     const SVFVar* sink_arg = call_node->getArgument(0);
                     //turn that arg into an SVFGNode
-                    pag-> sink_arg
+                    const SVFGNode* node = getSVFG()->getDefSVFGNode(sink_arg);
 
+                    cerr << "sink at: " << node->getSourceLoc() << endl;
 
-                    this->addToSinks();
+                    this->addToSinks(node);
                 }
             }
         }
